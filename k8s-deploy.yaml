@@ -34,11 +34,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: micro-app-service
+  labels:
+    app: micro-app
 spec:
   selector:
     app: micro-app
   ports:
     - protocol: TCP
       port: 80        # Cổng bên ngoài nhìn vào
-      targetPort: 5000 # Cổng bên trong container
+      targetPort: 5000
+      name: http # Cổng bên trong container
   type: LoadBalancer # K3s sẽ tự cấp một IP để Huy truy cập

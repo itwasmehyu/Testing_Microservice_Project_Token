@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: micro-app-monitor
+  namespace: monitoring
+  labels:
+    release: monitor
+spec:
+  selector:
+    matchLabels:
+      app: micro-app
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
