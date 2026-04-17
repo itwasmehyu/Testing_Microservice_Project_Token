@@ -3,4 +3,4 @@
         with:
           context: .
           push: true
-          tags: huynguyen101/micro-app:latest, huynguyen101/micro-app:${{ github.sha }}
+          tags: itwasmehyu/micro-app:latest, itwasmehyu/micro-app:${{ github.sha }}
