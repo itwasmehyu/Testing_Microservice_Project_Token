@@ -21,8 +21,7 @@ jobs:
         run: pip install flake8
         
       - name: Lint code
-        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-
+        run: flake8 . --count --exclude=venv --select=E9,F63,F7,F82 --show-source --statistics
   # --- CHẶNG 2: BUILD VÀ QUÉT BẢO MẬT ---
   build-and-scan:
     needs: quality-check
