@@ -1,6 +1,61 @@
-- name: Build and push
+name: DevOps Microservice Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # --- CHẶNG 1: KIỂM TRA CHẤT LƯỢNG ---
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install Linting Tool
+        run: pip install flake8
+        
+      - name: Lint code
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+  # --- CHẶNG 2: BUILD VÀ QUÉT BẢO MẬT ---
+  build-and-scan:
+    needs: quality-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build local image for scanning
+        run: docker build -t temp-image:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'temp-image:${{ github.sha }}'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+
+  # --- CHẶNG 3: ĐẨY HÀNG LÊN DOCKER HUB ---
+  push-to-dockerhub:
+    needs: build-and-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: itwasmehyu/micro-app:latest, itwasmehyu/micro-app:${{ github.sha }}
+          tags: huynguyen101/micro-app:latest, huynguyen101/micro-app:${{ github.sha }}
